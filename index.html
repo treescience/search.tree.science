@@ -42,7 +42,8 @@
               let code_box = document.createTextNode(result.source);
               inner_code_box.appendChild(code_box);
               outer_code_box.appendChild(inner_code_box);
-              document.getElementById("results").appendChild(outer_code_box);
+              container.appendChild(outer_code_box);
+              document.getElementById("results").appendChild(container);
           }
         document.querySelectorAll('code').forEach((block) => {
           hljs.highlightBlock(block);

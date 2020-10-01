@@ -1,81 +1,264 @@
+<!DOCTYPE html>
 <html>
+
     <head>
-        <title>search.tree.science</title>
+        <title>Search Tool</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
         <link rel="stylesheet"
-          href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
+            href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
+        <style>
+        @import url(https://fonts.googleapis.com/css?family=Open+Sans);
+        body {
+          background-color: #F5F6FD;
+          font-family: 'Open Sans', serif;
+        }
+
+        .wrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .wrapper .container-search {
+          width: 100%;
+          flex-direction: column;
+          align-items: center;
+          max-width: 617px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .wrapper .results {
+          width: 100%;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .wrapper .container-search h1 {
+          color: white;
+          text-align: center;
+          color: #0000FA;
+          font-weight: bold;
+        }
+        .wrapper .container-search .container-input {
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+        }
+        .wrapper .container-search .container-input .search-term {
+          max-width: 585px;
+          width: 100%;
+          background-color: white;
+          border: 2px solid #0000FA;
+          border-right: none;
+          color: #0000FA;
+          padding: 5px 5px 5px 25px;
+          height: 40px;
+          border-radius: 50px 0 0 50px;
+          outline: none;
+          -webkit-appearance: none;
+          caret-color: #primary;
+          font-size: 20px;
+        }
+        .wrapper .container-search .container-input .search-term::-webkit-calendar-picker-indicator {
+          display: none;
+        }
+        .wrapper .container-search .container-input .search-term:focus {
+          color: #0000FA;
+        }
+        .wrapper .container-search .container-input .search-term::placeholder {
+          color: #A3A3FF;
+          font-weight: italic;
+        }
+        .wrapper .container-search .container-input .search-button {
+          width: 70px;
+          height: 54px;
+          background: white;
+          text-align: center;
+          color: #0000FA;
+          border-radius: 0 50px 50px 0;
+          border: 2px solid #0000FA;
+          cursor: pointer;
+          font-size: 25px;
+          border-left: none;
+        }
+        .wrapper .container-search ul.search-history {
+          list-style-type: none;
+          padding: 0;
+          margin: 16px 0 0 0;
+          width: 100%;
+        }
+        .wrapper .container-search ul.search-history:hover li {
+          opacity: .5;
+        }
+        .wrapper .container-search ul.search-history li {
+          color: #0000FA;
+          font-size: 16px;
+          margin-bottom: 8px;
+          padding: 12px 24px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          position: relative;
+          transition: all .3s ease-in-out;
+          border-radius: 8px;
+        }
+        .wrapper .container-search ul.search-history li:hover {
+          opacity: 1;
+        }
+        .wrapper .container-search ul.search-history li span.text {
+          position: relative;
+          z-index: 3;
+        }
+        .wrapper .container-search ul.search-history li span.text a {
+          text-decoration: none;
+        }
+        .wrapper .container-search ul.search-history li a.link {
+          width: 100%;
+          height: 40px;
+          display: block;
+          position: absolute;
+          z-index: 2;
+          left: 0;
+        }
+        .wrapper .container-search ul.search-history li:before, .wrapper .container-search ul.search-history li:after {
+          font-family: 'Font Awesome\ 5 Free';
+          font-weight: 900;
+          margin-right: 12px;
+          transition: all .3s ease-in-out;
+        }
+        .wrapper .container-search ul.search-history li:before {
+          content: '\f1da';
+        }
+        .wrapper .container-search ul.search-history li:after {
+          content: '\f30b';
+          opacity: 0;
+          position: absolute;
+          right: 16px;
+        }
+        .wrapper .container-search ul.search-history li:hover {
+          background: rgba(0, 0, 250, 0.1);
+        }
+        .wrapper .container-search ul.search-history li:hover:after {
+          opacity: 1;
+        }
+
+        </style>
     </head>
+
     <body>
-        <center>
-            <h2>search.tree.science</h2>
-            Search Engine, but for code!
-        </center>
-        <form name="fetch">
-          <center><input type="text" name="query" style="width: 30rem; height: 10rem;" value="FunctionDef(body={Return(Tuple())})"></center>
-          <center><button type="submit">Submit</button></center>
-          <a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md">ReizQL docs</a>
-        </form>
-        <span id="stats" style="float:right;padding-right:10rem;"></span><br><br>
-        <div id="errors"></div>
-        <div id="results"></div>
-    </body>
-    <script>
-        const form = document.forms.fetch;
-        const stats_box = document.getElementById("stats");
-
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            const element = e.target.firstElementChild.firstElementChild;
-            const body = JSON.stringify({
-                query: element.value || element.placeholder,
-            });
-            const stats_body = JSON.stringify({
-                query: element.value || element.placeholder,
-                stats: true,
-            });
-            stats_box.innerHTML.innerHTML = "";
-            const res = await postForm(body);
-            const data = await res.json();
-            document.getElementById("results").innerHTML = "";
-            document.getElementById("errors").innerHTML = "";
-            if (data.status == "success") {
-                for (result of data.results) {
-                    let container = document.createElement("fieldset");
-                    let filename_box = document.createElement("legend");
-                    filename_box.innerHTML = result.filename;
-                    container.appendChild(filename_box);
-                    let outer_code_box = document.createElement("pre");
-                    let inner_code_box = document.createElement("code");
-                    inner_code_box.className = "python hljs";
-                    let code_box = document.createTextNode(result.source);
-                    inner_code_box.appendChild(code_box);
-                    outer_code_box.appendChild(inner_code_box);
-                    container.appendChild(outer_code_box);
-                    document.getElementById("results").appendChild(container);
-                }
-                document.querySelectorAll("code").forEach((block) => {
-                    hljs.highlightBlock(block);
-                });
-                const res_stats = await postForm(stats_body);
-                const stats_data = await res_stats.json();
-                if (stats_data.status == "success") {
-                    stats_box.innerHTML = "Total number of matches: " + stats_data.results;
-                }
-            } else {
-                document.getElementById("errors").innerHTML = data.exception;
+        <div class="wrapper" id="wrapper">
+            <div class="container-search">
+                <a href="https://search.tree.science" style="text-decoration: none"><h1>search.tree.science</h1></a>
+                    <form class="container-input" name="fetch">
+                        <input type="text" id="reizql_query" name="query" class="search-term" placeholder="Query...">
+                        <button type="submit" class="search-button" id="execute_query">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
+                <center><a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md" style="text-decoration: none"><h3>ReizQL docs</h3></a></center>
+                <ul class="search-history">
+                    <li>
+                        <span class="text"><a href="?query=FunctionDef(name='foo')">FunctionDef(name='foo')</a></span>
+                    </li>
+                    <li>
+                        <span class="text"><a href="?query=Tuple([Constant(), Constant()])">Tuple([Constant(), Constant()])</a></span>
+                    </li>
+                    <li>
+                        <span class="text"><a href="?query=FunctionDef(body=[Assign(), ..., Return(Tuple())])">FunctionDef(body=[Assign(), ..., Return(Tuple())])</a></span>
+                    </li>
+                    <li>
+                        <span class="text"><a href="?query=Call(Attribute(Name('self'), 'update'))">Call(Attribute(Name("self"), "update"))</a></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="wrapper" style="padding-top: 2rem;" id="after">
+            <center>
+            <div id="stats" style="color:green"></div>
+            <div id="errors" style="color:red"></div>
+            </center>
+        </div>
+        <div class="wrapper" style="padding-left: 10rem; padding-right: 10rem;" id="after">
+            <br><br>
+            <div id="results" class="results"></div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script>
+            $("#after").hide();
+            $("#wrapper").css("padding-top", "10rem");
+            function getParameterByName(name) {
+                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+                return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
             }
-        };
+            if (getParameterByName("query") != null) {
+                $("#reizql_query").val(getParameterByName("query"));
+            }
 
-        const postForm = (body) => {
-            return fetch("https://api.tree.science/query", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body,
-            });
-        };
+            const form = document.forms.fetch;
+            const stats_box = document.getElementById("stats");
 
-        form.addEventListener("submit", handleSubmit);
-    </script>
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                $(".search-history").hide();
+                $("#wrapper").css("padding-top", "0");
+                $("#after").show();
+                const element = e.target.firstElementChild;
+                const body = JSON.stringify({
+                    query: element.value || element.placeholder,
+                });
+                const stats_body = JSON.stringify({
+                    query: element.value || element.placeholder,
+                    stats: true,
+                });
+                stats_box.innerHTML.innerHTML = "";
+                const res = await postForm(body);
+                const data = await res.json();
+                document.getElementById("stats").innerHTML = "";
+                document.getElementById("results").innerHTML = "";
+                document.getElementById("errors").innerHTML = "";
+                if (data.status == "success") {
+                    for (result of data.results) {
+                        let container = document.createElement("fieldset");
+                        let filename_box = document.createElement("legend");
+                        filename_box.innerHTML = result.filename;
+                        container.appendChild(filename_box);
+                        let outer_code_box = document.createElement("pre");
+                        let inner_code_box = document.createElement("code");
+                        inner_code_box.className = "python hljs";
+                        let code_box = document.createTextNode(result.source);
+                        inner_code_box.appendChild(code_box);
+                        outer_code_box.appendChild(inner_code_box);
+                        container.appendChild(outer_code_box);
+                        document.getElementById("results").appendChild(container);
+                    }
+                    document.querySelectorAll("code").forEach((block) => {
+                        hljs.highlightBlock(block);
+                    });
+                    const res_stats = await postForm(stats_body);
+                    const stats_data = await res_stats.json();
+                    if (stats_data.status == "success") {
+                        stats_box.innerHTML = "Total number of matches: " + stats_data.results;
+                    }
+                } else {
+                    document.getElementById("errors").innerHTML = data.exception;
+                }
+            };
+
+            const postForm = (body) => {
+                return fetch("https://api.tree.science/query", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body,
+                });
+            };
+            form.addEventListener("submit", handleSubmit);
+
+        </script>
+    </body>
+
 </html>

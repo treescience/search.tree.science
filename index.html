@@ -6,13 +6,19 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
         <link rel="stylesheet"
             href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.css" type="text/css" rel="stylesheet">
         <style>
         @import url(https://fonts.googleapis.com/css?family=Open+Sans);
         body {
           background-color: #F5F6FD;
           font-family: 'Open Sans', serif;
         }
-
+        a { 
+            color: blue;
+            text-decoration: none;
+        }
         .wrapper {
           display: flex;
           justify-content: center;
@@ -155,7 +161,13 @@
                             <i class="fa fa-search"></i>
                         </button>
                     </form>
-                <center><a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md" style="text-decoration: none"><h3>ReizQL docs</h3></a></center>
+                <center>
+                    <a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md"><h3>ReizQL docs</h3></a>
+                    <br>
+                    <a id="inspect" href="#query" onclick="inspect_query();">Inspect the Query</a>
+                </center>
+                
+                <center></center>
                 <ul class="search-history">
                     <li>
                         <span class="text"><a href="?query=FunctionDef(name='foo')">FunctionDef(name='foo')</a></span>
@@ -180,11 +192,12 @@
         </div>
         <div class="wrapper" style="padding-left: 10rem; padding-right: 10rem;" id="after">
             <br><br>
+            <pre id="json-renderer"></pre>
             <div id="results" class="results"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script>
+            let in_query = false;
             $("#after").hide();
             $("#wrapper").css("padding-top", "10rem");
             function getParameterByName(name) {
@@ -199,12 +212,31 @@
 
             const form = document.forms.fetch;
             const stats_box = document.getElementById("stats");
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
+            const basic_reset = async () => {
                 $(".search-history").hide();
                 $("#wrapper").css("padding-top", "0");
                 $("#after").show();
+                stats_box.innerHTML.innerHTML = "";
+                document.getElementById("stats").innerHTML = "";
+                document.getElementById("errors").innerHTML = "";
+                document.getElementById("results").innerHTML = "";
+                document.getElementById("json-renderer").innerHTML = "";
+            }
+
+            const inspect_query = async () => {
+                const query = $("#reizql_query").val();
+                basic_reset();
+                const body = JSON.stringify({
+                    query: query
+                });
+                const res = await postForm("/analyze", body);
+                const data = await res.json();
+                $("#json-renderer").JSONView(data);
+            }
+    
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                basic_reset();
                 const element = e.target.firstElementChild;
                 const body = JSON.stringify({
                     query: element.value || element.placeholder,
@@ -213,12 +245,8 @@
                     query: element.value || element.placeholder,
                     stats: true,
                 });
-                stats_box.innerHTML.innerHTML = "";
-                const res = await postForm(body);
+                const res = await postForm("/query", body);
                 const data = await res.json();
-                document.getElementById("stats").innerHTML = "";
-                document.getElementById("results").innerHTML = "";
-                document.getElementById("errors").innerHTML = "";
                 if (data.status == "success") {
                     for (result of data.results) {
                         let container = document.createElement("fieldset");
@@ -237,7 +265,7 @@
                     document.querySelectorAll("code").forEach((block) => {
                         hljs.highlightBlock(block);
                     });
-                    const res_stats = await postForm(stats_body);
+                    const res_stats = await postForm("/query", stats_body);
                     const stats_data = await res_stats.json();
                     if (stats_data.status == "success") {
                         stats_box.innerHTML = "Total number of matches: " + stats_data.results;
@@ -247,8 +275,8 @@
                 }
             };
 
-            const postForm = (body) => {
-                return fetch("https://api.tree.science/query", {
+            const postForm = (endpoint, body) => {
+                return fetch("https://api.tree.science" + endpoint, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

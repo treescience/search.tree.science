@@ -141,6 +141,7 @@ reizql.addEventListener("input", queryChange);
         if (urlParams.get("inspect") !== null) {
             return await inspectQuery();
         }
+        makeQuery(query);
     } else{
         hide(inspect);
     }

@@ -194,3 +194,13 @@
         div.docs-and-inspect {
           text-align: center;
         }
+        .header {
+          text-align: center;
+        }
+        .header img {
+          float: inline-start;
+        }
+
+        .header h1 {
+          display: inline;
+        }

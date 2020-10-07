@@ -71,7 +71,7 @@ const handleSubmit = async (e) => {
 const makeQuery = async (query) => {
     show(inspect);
     basic_reset();
-    window.history.pushState({query: query}, '', `/?query=${query}`);
+    setState(query);
 
     const body = JSON.stringify({
         query: query,
@@ -112,7 +112,7 @@ const makeQuery = async (query) => {
         const stats_data = await res_stats.json();
 
         if (stats_data.status == "success") {
-            stats_box.innerHTML = "Total number of matches: " + stats_data.results;
+            stats_box.innerHTML = `Total number of matches: ${stats_data.results}`;
         }
     } else {
         document.getElementById("errors").innerHTML = data.exception;
@@ -120,7 +120,7 @@ const makeQuery = async (query) => {
 };
 
 const postForm = (endpoint, body) => {
-    return fetch("https://api.tree.science" + endpoint, {
+    return fetch(`https://api.tree.science${endpoint}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -141,7 +141,7 @@ reizql.addEventListener("input", queryChange);
         if (urlParams.get("inspect") !== null) {
             return await inspectQuery();
         }
-        makeQuery(query);
+        await makeQuery(query);
     } else{
         hide(inspect);
     }

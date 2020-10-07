@@ -11,13 +11,20 @@
     <body>
         <div class="wrapper" id="wrapper">
             <div class="container-search">
-                <a href="/" style="text-decoration: none"><h1>search.tree.science</h1></a>
-                    <form class="container-input" name="fetch">
-                        <input type="text" id="reizql_query" name="query" class="search-term" placeholder="Query...">
-                        <button type="submit" class="search-button" id="execute_query">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </form>
+                <div class="header">
+                    <a href="/">
+                        <h1>search.tree.science</h1>
+                    </a>
+                    <a href="https://github.com/reizio/reiz.io">
+                        <img src="https://www.repostatus.org/badges/latest/wip.svg">
+                    </a>
+                </div>
+                <form class="container-input" name="fetch">
+                    <input type="text" id="reizql_query" name="query" class="search-term" placeholder="Query...">
+                    <button type="submit" class="search-button" id="execute_query">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
                 <div class="docs-and-inspect">
                     <a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md"><h3>ReizQL docs</h3></a>
                     <br>
@@ -51,5 +58,4 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
         <script src="app.js"></script>
     </body>
-
 </html>

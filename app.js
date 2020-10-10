@@ -77,11 +77,6 @@ const makeQuery = async (query) => {
         query: query,
     });
 
-    const stats_body = JSON.stringify({
-        query: query,
-        stats: true,
-    });
-
     const res = await postForm("/query", body);
     const data = await res.json();
 
@@ -107,13 +102,6 @@ const makeQuery = async (query) => {
         document.querySelectorAll("code").forEach((block) => {
             hljs.highlightBlock(block);
         });
-
-        const res_stats = await postForm("/query", stats_body);
-        const stats_data = await res_stats.json();
-
-        if (stats_data.status == "success") {
-            stats_box.innerHTML = `Total number of matches: ${stats_data.results}`;
-        }
     } else {
         document.getElementById("errors").innerHTML = data.exception;
     }

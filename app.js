@@ -84,9 +84,13 @@ const makeQuery = async (query) => {
         for (result of data.results) {
             let container = document.createElement("fieldset");
             let filename_box = document.createElement("legend");
-            filename_box.innerHTML = result.filename;
+            let filename_link = document.createElement("a");
+            filename_link.setAttribute('href', result.github_link);
+            filename_link.appendChild(document.createTextNode(result.filename));
+
+            filename_box.appendChild(filename_link);
             container.appendChild(filename_box);
-           
+
             let outer_code_box = document.createElement("pre");
             let inner_code_box = document.createElement("code");
             inner_code_box.className = "python hljs";

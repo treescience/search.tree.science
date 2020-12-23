@@ -112,7 +112,7 @@ const makeQuery = async (query) => {
 };
 
 const postForm = (endpoint, body) => {
-    return fetch(`https://api.tree.science${endpoint}`, {
+    return fetch(`//api.tree.science${endpoint}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

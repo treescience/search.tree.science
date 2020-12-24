@@ -9,7 +9,7 @@ window.state = {
 	offset: 0,
 	results: [],
 	loading: false,
-	error: '',
+	error: null,
 	history: [
 		'FunctionDef(name="foo")',
 		'Tuple([Constant(), Constant()])',
@@ -35,9 +35,15 @@ function setState(data) {
 
 // COMPONENTS
 async function render() {
+	const noResultsFound = state.results.length === 0
+	                    && state.history.length === 0
+	                    && state.loading === false
+	                    && state.error === null
+
 	results.innerHTML = `
 		${state.results.map(CodeComponent).join('')}
 		${state.results.length === 10 ? `<button id="next-button" onclick="nextPage()">Next</button>` : ''}
+		${noResultsFound ? `<p style="text-align: center">No Results Found...</p>` : ''}
 		${state.loading ? '<p align="center"><img id="loading" src="loading.png"/></p>' : '' }
 		${state.error ? `<p id="error">${state.error}</p>` : '' }
 	`
@@ -55,7 +61,7 @@ function CodeComponent({ github_link, filename, source }) {
 					${filename}
 				</a>
 			</legend>
-			<pre>
+			<pre style="max-width: 650px; overflow-x: auto">
 				<code class="python hljs">${source}</code>
 			</pre>
 		</fieldset>

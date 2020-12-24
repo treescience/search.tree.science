@@ -1,63 +1,65 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Search Tool</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
-        <link rel="stylesheet"
-            href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
-        <link href="./style.css" type="text/css" rel="stylesheet">
-    </head>
+	<head>
+		<title>Search Tool</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css" />
+		<link href="./style.css" type="text/css" rel="stylesheet">
+	</head>
 
-    <body>
-        <a class="github-fork-ribbon" href="https://github.com/reizio/reiz.io" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
-        <div class="wrapper" id="wrapper">
-            <div class="container-search">
-                <div class="header">
-                    <a href="/">
-                        <h1>search.tree.science</h1>
-                    </a>
-                </div>
-                <form class="container-input" name="fetch">
-                    <input type="text" id="reizql_query" name="query" class="search-term" placeholder="Query...">
-                    <button type="submit" class="search-button" id="execute_query">
-                        <i class="fa fa-search"></i>
-                    </button>
-                </form>
-                <div class="docs-and-inspect">
-                    This is a public alpha of the Reiz, running on an extremely low tier [free] VPS. The query execution
-                    time is not as great as what I have in my local / or what you might expect but still is working. Also,
-                    the dataset is fairly minimal, consisting of only a couple of thousands of files.
-                    <a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md"><h3>ReizQL docs</h3></a>
-                    <br>
-                    <a id="inspect" href="#query">Inspect the Query</a>
-                </div>
+	<body>
 
-                <ul class="search-history" id="search-history">
-                    <li>
-                        <span class="text"><a>FunctionDef(name='foo')</a></span>
-                    </li>
-                    <li>
-                        <span class="text"><a>Tuple([Constant(), Constant()])</a></span>
-                    </li>
-                    <li>
-                        <span class="text"><a>FunctionDef(body=[Assign(), ..., Return(Tuple())])</a></span>
-                    </li>
-                    <li>
-                        <span class="text"><a>Call(Attribute(Name("self"), "update"))</a></span>
-                    </li>
+		<!-- FORK ME -->
+		<a class="github-fork-ribbon" href="https://github.com/reizio/reiz.io" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">
+			Fork me on GitHub
+		</a>
+
+		<div class="center">
+			<a href="/">
+				<h1>search.tree.science</h1>
+			</a>
+
+			<div id="docs">
+				This is a public alpha of the Reiz, running on an extremely low tier [free] VPS. The query execution
+				time is not as great as what I have in my local / or what you might expect but still is working. Also,
+				the dataset is fairly minimal, consisting of only a couple of thousands of files.
+			</div>
+
+			<!-- SEARCH -->
+			<div id="search-container">
+				<input id="search" placeholder="Query...">
+				<button id="search-button" onclick="fetchData">
+					<i class="fa fa-search"></i>
+				</button>
+			</div>
+
+			<div id="inspect">
+				<a href="https://github.com/reizio/reiz.io/blob/master/docs/reizql.md"><h3>ReizQL docs</h3></a>
+			</div>
+		</div>
+
+
+		<ul id="search-history">
+			<li>
+				<span class="text"><a>FunctionDef(name='foo')</a></span>
+			</li>
+			<li>
+				<span class="text"><a>Tuple([Constant(), Constant()])</a></span>
+			</li>
+			<li>
+				<span class="text"><a>FunctionDef(body=[Assign(), ..., Return(Tuple())])</a></span>
+			</li>
+			<li>
+				<span class="text"><a>Call(Attribute(Name("self"), "update"))</a></span>
+			</li>
                 </ul>
-            </div>
-        </div>
-        <div class="wrapper" id="stats-wrapper">
-              <div id="stats"></div>
-              <div id="errors"></div>
-        </div>
-        <div class="wrapper" id="result-wrapper">
-            <pre><code id="json-renderer" class="json hljs"></code></pre>
-            <div id="results" class="results"></div>
-        </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
-        <script src="app.js"></script>
-    </body>
+
+		<!-- QUERY RESULTS -->
+		<div id="results"></div>
+
+		<!-- LIBS -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script>
+		<script src="app.js"></script>
+	</body>
 </html>

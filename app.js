@@ -1,85 +1,43 @@
-let stats_box = document.getElementById("stats");
-let form = document.forms.fetch;
-let inspect = document.getElementById("inspect");
-let searchHistory = document.getElementById("search-history");
-let reizql = document.getElementById("reizql_query");
+const stats_box = document.getElementById("stats");
+const inspect = document.getElementById("inspect");
+const searchHistory = document.getElementById("search-history");
+const search = document.getElementById("reizql_query");
+const search = document.getElementById('search')
+const app = document.getElementById('app')
 
-let urlParams = new URLSearchParams(window.location.search);
 
-const show = (element) => element.style.display = "block";
-const hide = (element) => element.style.display = "none";
-
-const setState = (query, inspect) => {
-    urlParams.set("query", query);
-    if (inspect !== undefined){
-        urlParams.set("inspect", inspect);
-    }
-    window.history.pushState({query: query, inspect: inspect || false}, '', `/?${urlParams.toString()}`);
+// STATE
+let state = {
+	offset: 0,
+	results: []
+	urlParams: new URLSearchParams(window.location.search)
 };
 
-const queryChange = (e) => e.target.value ? show(inspect) : hide(inspect);
+function setState(data) {
+	state = {...state, ...data}
+	render()
+}
 
-const basic_reset = () => {
-    document.getElementById("wrapper").style.paddingTop = "0";
-    hide(document.getElementById("search-history"));
-    show(document.getElementById("stats-wrapper"));
-    show(document.getElementById("result-wrapper"));
-
-    stats_box.innerHTML.innerHTML = "";
-    
-    document.getElementById("stats").innerHTML = "";
-    document.getElementById("errors").innerHTML = "";
-    document.getElementById("results").innerHTML = "";
-    document.getElementById("json-renderer").innerHTML = "";
-};
-
-const handleHistory = async (e) => {
-    if (e?.target?.text) {
-        const query  = e.target.text;
-        document.getElementById("reizql_query").value = query;
-        await makeQuery(query);
-    }
-};
-
-const inspectQuery = async (e) => {
-    if (e !== undefined) {
-        e.preventDefault()
-    }
-
-    const query = document.getElementById("reizql_query").value;
-    const body = JSON.stringify({
-        query: query
+const postForm = (endpoint, body) => {
+    return fetch(`//api.tree.science${endpoint}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body,
     });
-
-    hide(inspect);
-    setState(query, true);
-    basic_reset();
-
-    const res = await postForm("/analyze", body);
-    const data = await res.json();
-    
-    let jsonView = document.getElementById("json-renderer");
-    jsonView.appendChild(document.createTextNode(JSON.stringify(data, null, 2)));
-    hljs.highlightBlock(jsonView);
 };
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    await makeQuery(e.target.firstElementChild.value);
-};
 
-const makeQuery = async (query) => {
-    show(inspect);
-    basic_reset();
-    setState(query);
+// COMPONENTS
+function render() {
+	app.innerHTML = `
 
-    const body = JSON.stringify({
-        query: query,
-    });
+	`
 
-    const res = await postForm("/query", body);
-    const data = await res.json();
-
+	return `
+		${state.results.map(CodeComponent).join('')}
+	`
     if (data.status == "success") {
         if (data.results.length === 0) {
             document.getElementById("errors").innerHTML = "No results found!";
@@ -97,12 +55,12 @@ const makeQuery = async (query) => {
             let outer_code_box = document.createElement("pre");
             let inner_code_box = document.createElement("code");
             inner_code_box.className = "python hljs";
-            
+
             let code_box = document.createTextNode(result.source);
             inner_code_box.appendChild(code_box);
             outer_code_box.appendChild(inner_code_box);
             container.appendChild(outer_code_box);
-            
+
             document.getElementById("results").appendChild(container);
         }
 
@@ -112,33 +70,45 @@ const makeQuery = async (query) => {
     } else {
         document.getElementById("errors").innerHTML = data.exception;
     }
-};
 
-const postForm = (endpoint, body) => {
-    return fetch(`//api.tree.science${endpoint}`, {
+    offset += 10
+}
+
+function CodeComponent({ link, fpath, code }) {
+	return `
+		<fieldset>
+			<legend>
+				<a href="${link}">
+					${fpath}
+				</a>
+			</legend>
+			<pre>
+				<code class="python hljs">
+					${code}
+				</code>
+			</pre>
+		</fieldset>
+	`
+}
+
+// EVENT HANDLERS
+async function fetchData() {
+    const body = JSON.stringify({
+	    query: search,
+	    offset
+    });
+
+    const response = await fetch(`//api.tree.science${endpoint}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body,
+	body: JSON.stringify({
+		query: search.value,
+		offset: state.offset
+	})
     });
-};
 
-inspect.addEventListener("click", inspectQuery);
-searchHistory.addEventListener("click", handleHistory);
-form.addEventListener("submit", handleSubmit);
-reizql.addEventListener("input", queryChange);
-
-(async () => {
-    const query = urlParams.get("query");
-    if (query !== null) {
-        reizql.value = query;
-        if (urlParams.get("inspect") !== null) {
-            return await inspectQuery();
-        }
-        await makeQuery(query);
-    } else{
-        hide(inspect);
-    }
+    const results = await res.json();
+    setState({ results })
 }
-)();

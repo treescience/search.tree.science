@@ -1,114 +1,118 @@
-const stats_box = document.getElementById("stats");
-const inspect = document.getElementById("inspect");
-const searchHistory = document.getElementById("search-history");
-const search = document.getElementById("reizql_query");
-const search = document.getElementById('search')
+// DOM REFERENCES
+window.search = document.getElementById('search')
 const app = document.getElementById('app')
+const searchHistory = document.getElementById('search-history')
 
 
 // STATE
-let state = {
+window.state = {
 	offset: 0,
-	results: []
+	results: [],
+	loading: false,
+	error: '',
+	history: [
+		'FunctionDef(name="foo")',
+		'Tuple([Constant(), Constant()])',
+		'FunctionDef(body=[Assign(), ..., Return(Tuple())])',
+		'Call(Attribute(Name("self"), "update"))'
+	],
 	urlParams: new URLSearchParams(window.location.search)
 };
 
 function setState(data) {
-	state = {...state, ...data}
+	window.state = {...window.state, ...data}
+
+	window.state.urlParams.set('query', window.search.value)
+	window.state.urlParams.set('offset', window.state.offset)
+	window.history.pushState({
+		query: window.search.value,
+		offset: window.state.offset
+	}, '', '/?' + window.state.urlParams.toString())
+
 	render()
 }
 
-const postForm = (endpoint, body) => {
-    return fetch(`//api.tree.science${endpoint}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body,
-    });
-};
-
 
 // COMPONENTS
-function render() {
-	app.innerHTML = `
-
-	`
-
-	return `
+async function render() {
+	results.innerHTML = `
 		${state.results.map(CodeComponent).join('')}
+		${state.results.length === 10 ? `<button id="next-button" onclick="nextPage()">Next</button>` : ''}
+		${state.loading ? '<p align="center"><img id="loading" src="loading.png"/></p>' : '' }
+		${state.error ? `<p id="error">${state.error}</p>` : '' }
 	`
-    if (data.status == "success") {
-        if (data.results.length === 0) {
-            document.getElementById("errors").innerHTML = "No results found!";
-        }
-        for (result of data.results) {
-            let container = document.createElement("fieldset");
-            let filename_box = document.createElement("legend");
-            let filename_link = document.createElement("a");
-            filename_link.setAttribute('href', result.github_link);
-            filename_link.appendChild(document.createTextNode(result.filename));
 
-            filename_box.appendChild(filename_link);
-            container.appendChild(filename_box);
+	searchHistory.innerHTML = state.history.map(HistoryComponent).join('')
 
-            let outer_code_box = document.createElement("pre");
-            let inner_code_box = document.createElement("code");
-            inner_code_box.className = "python hljs";
-
-            let code_box = document.createTextNode(result.source);
-            inner_code_box.appendChild(code_box);
-            outer_code_box.appendChild(inner_code_box);
-            container.appendChild(outer_code_box);
-
-            document.getElementById("results").appendChild(container);
-        }
-
-        document.querySelectorAll("code").forEach((block) => {
-            hljs.highlightBlock(block);
-        });
-    } else {
-        document.getElementById("errors").innerHTML = data.exception;
-    }
-
-    offset += 10
+	document.querySelectorAll(".hljs").forEach(hljs.highlightBlock)
 }
 
-function CodeComponent({ link, fpath, code }) {
+function CodeComponent({ github_link, filename, source }) {
 	return `
 		<fieldset>
 			<legend>
-				<a href="${link}">
-					${fpath}
+				<a href="${github_link}">
+					${filename}
 				</a>
 			</legend>
 			<pre>
-				<code class="python hljs">
-					${code}
-				</code>
+				<code class="python hljs">${source}</code>
 			</pre>
 		</fieldset>
 	`
 }
 
-// EVENT HANDLERS
-async function fetchData() {
-    const body = JSON.stringify({
-	    query: search,
-	    offset
-    });
-
-    const response = await fetch(`//api.tree.science${endpoint}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-	body: JSON.stringify({
-		query: search.value,
-		offset: state.offset
-	})
-    });
-
-    const results = await res.json();
-    setState({ results })
+function HistoryComponent(data) {
+	return `
+		<li onclick="(search.value = this.innerText) && (window.state.history = []) && fetchQuery()">
+			<span class="text"><a>${data}</a></span>
+		</li>
+	`
 }
+
+
+// EVENT HANDLERS
+async function fetchQuery() {
+	setState({ results: [], loading: true })
+
+	const response = await fetch(`//api.tree.science/query`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			query: search.value,
+			offset: window.state.offset
+		})
+	});
+
+	const {results, exception} = await response.json();
+	setState({
+		results,
+		error: exception,
+		loading: false
+	})
+}
+
+function nextPage() {
+	window.state.offset += window.state.results.length;
+	window.scrollTo(0, 0)
+	fetchQuery()
+}
+
+
+// entry point
+(async function () {
+	const [query, offset] = [
+		window.state.urlParams.get('query'),
+		+window.state.urlParams.get('offset') || 0
+	]
+
+	if (query) {
+		window.search.value = query
+		setState({ offset, history: [] })
+	}
+
+	// run once
+	fetchQuery().then(render)
+})()

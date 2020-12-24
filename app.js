@@ -81,6 +81,9 @@ const makeQuery = async (query) => {
     const data = await res.json();
 
     if (data.status == "success") {
+        if (data.results.length === 0) {
+            document.getElementById("errors").innerHTML = "No results found!";
+        }
         for (result of data.results) {
             let container = document.createElement("fieldset");
             let filename_box = document.createElement("legend");

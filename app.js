@@ -53,10 +53,13 @@ async function render() {
     document.querySelectorAll(".hljs").forEach(hljs.highlightBlock)
 }
 
-function CodeComponent({ github_link, filename, source }) {
+function CodeComponent({ repo, username, github_link, filename, source }) {
     return `
         <fieldset>
             <legend>
+                <a href=${repo}>
+                    <img src="https://avatars.githubusercontent.com/${username}" width=40 height=40/>
+                </a>
                 <a href="${github_link}">
                     ${filename}
                 </a>

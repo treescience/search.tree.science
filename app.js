@@ -11,10 +11,10 @@ window.state = {
     loading: false,
     error: null,
     history: [
-        'FunctionDef(name="foo")',
+        'FunctionDef(f"run_%")',
         'Tuple([Constant(), Constant()])',
-        'FunctionDef(body=[Assign(), ..., Return(Tuple())])',
-        'Call(Attribute(Name("self"), "update"))'
+        'FunctionDef(body=[Assign(), ..., Return(Call())])',
+        'Call(Attribute(attr="update"))'
     ],
     urlParams: new URLSearchParams(window.location.search)
 };

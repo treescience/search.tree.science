@@ -84,7 +84,7 @@ function HistoryComponent(data) {
 async function fetchQuery() {
     setState({ results: [], loading: true })
 
-    const response = await fetch(`//api.tree.science/query`, {
+    const response = await fetch(`http://localhost:8000/query`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

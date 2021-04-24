@@ -11,10 +11,12 @@ window.state = {
     loading: false,
     error: null,
     history: [
+        'Call(Name("len"))',
+        'BinOp(op=Add() | Sub())',
+        'Return(Tuple())',
         'FunctionDef(f"run_%")',
         'Tuple([Constant(), Constant()])',
-        'FunctionDef(body=[Assign(), ..., Return(Call())])',
-        'Call(Attribute(attr="update"))'
+        'FunctionDef(body=[*..., Return(Call())])',
     ],
     urlParams: new URLSearchParams(window.location.search)
 };
